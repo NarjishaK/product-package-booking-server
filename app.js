@@ -13,8 +13,6 @@ var SubCategory = require("./routes/subcategory");
 var admin = require("./routes/admins");
 var Attribute = require("./routes/attribute");
 var product = require("./routes/product");
-var warehouse = require("./routes/warehouse");
-var supplier = require("./routes/supplier");
 var shopping = require("./routes/shopping");
 var salesorder = require("./routes/salesorder");
 var customer = require("./routes/customer");
@@ -67,8 +65,6 @@ app.use("/admin", admin);
 app.use("/attribute", Attribute);
 app.use("/product", product);
 app.use("/review",review)
-app.use("/warehouse", warehouse);
-app.use("/supplier", supplier);
 app.use("/shopping", shopping);
 app.use("/salesorder", salesorder);
 app.use("/customer", customer);

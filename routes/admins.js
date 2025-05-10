@@ -16,11 +16,18 @@ const storage = multer.diskStorage({
 
 var upload = multer({ storage: storage });
 
-//admin signup and login routes
+//admin signup and login routes proofimage
 router.post('/',upload.single("image"),Controller.create)
 router.get('/',Controller.getAll)
 router.get('/:id',Controller.get)
-router.put('/:id',upload.single("image"),Controller.update)
+router.put(
+  '/:id',
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'proofimage', maxCount: 1 },
+  ]),
+  Controller.update
+);
 router.delete('/:id',Controller.delete)
 router.delete('/',Controller.deleteAll)
 router.post('/login',Controller.login)
@@ -29,11 +36,8 @@ router.post('/reset-password',Controller.resetPassword);
 router.put('/block/:id', Controller.toggleBlockAdmin);
 router.put('/unblock/:id',Controller.unblockAdmin);
 router.put('/change-password/:adminId', Controller.changePassword);
-
-
-//contact us
-
-
+//agreement confirm (false to true)
+router.put('/confirm-agreement/:id', Controller.agreementConfirm);
 // Define the POST route for sending an email
 router.post('/send-email', async (req, res) => {
   const { to, name, email, subject, message } = req.body;

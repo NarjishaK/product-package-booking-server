@@ -30,6 +30,9 @@ const adminSchema = new mongoose.Schema({
   image: {
     type: String,
   },
+  proofimage:{
+    type:String
+  },
   tokens: {
     type: String,
     default: "",

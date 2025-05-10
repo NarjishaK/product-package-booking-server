@@ -79,7 +79,6 @@ exports.resetPassword = async (req, res) => {
 exports.create = asyncHandler(async (req, res) => {
     const { name, email, password, role, phone ,designation} = req.body;
     const image = req.file ? req.file.filename : null;
-
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({ message: "Please add all fields" });
     }
@@ -105,7 +104,7 @@ exports.create = asyncHandler(async (req, res) => {
       role,
       phone,
       designation,
-      image
+      image,
     });
   
     if (admin) {
@@ -158,9 +157,13 @@ exports.update = asyncHandler(async (req, res) => {
       admin.agreement=agreement;
       admin.designation=designation;
       admin.address = address;
-      if (req.file) {
-        admin.image = req.file.filename;
+      if (req.files['image']) {
+        admin.image = req.files['image'][0].filename;
       }
+      if (req.files['proofimage']) {
+        admin.proofimage = req.files['proofimage'][0].filename;
+      }
+      
       const updatedAdmin = await admin.save();
       return res.json({ updatedAdmin });
       
@@ -205,6 +208,7 @@ exports.login = asyncHandler(async (req, res) => {
           role: admin.role,
           phone: admin.phone,
           image: admin.image,
+          proofimage: admin.proofimage,
           password: password,
           instagram: admin.instagram,
           facebook: admin.facebook,
@@ -283,3 +287,17 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Server error while updating password' });
     }
 };
+
+//agreement confirm (false to true)
+exports.agreementConfirm = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    try {
+        const admin = await AdminsModel.findByIdAndUpdate(id, { agreement: true }, { new: true });
+        if (!admin) {
+            return res.status(404).json({ message: "Admin not found" });
+        }
+        return res.status(200).json({ message: "Agreement confirmed successfully", admin });
+    } catch (err) {
+        return res.status(500).json({ error: "Server error, please try again" });
+    }
+});
