@@ -77,8 +77,9 @@ exports.resetPassword = async (req, res) => {
 
 //create admin
 exports.create = asyncHandler(async (req, res) => {
-    const { name, email, password, role, phone } = req.body;
-    const image = req.file.filename;
+    const { name, email, password, role, phone ,designation} = req.body;
+    const image = req.file ? req.file.filename : null;
+
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({ message: "Please add all fields" });
     }
@@ -103,6 +104,7 @@ exports.create = asyncHandler(async (req, res) => {
       password,
       role,
       phone,
+      designation,
       image
     });
   
