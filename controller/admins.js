@@ -127,7 +127,7 @@ exports.get = asyncHandler(async (req, res) => {
 
 // Update admin
 exports.update = asyncHandler(async (req, res) => {
-    const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address } = req.body;
+    const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address,agreement,designation } = req.body;
     const { id } = req.params;
   
     try {
@@ -154,6 +154,7 @@ exports.update = asyncHandler(async (req, res) => {
       admin.youtube = youtube;
       admin.whatsapp = whatsapp;
       admin.agreement=agreement;
+      admin.designation=designation;
       admin.address = address;
       if (req.file) {
         admin.image = req.file.filename;
@@ -207,6 +208,7 @@ exports.login = asyncHandler(async (req, res) => {
           facebook: admin.facebook,
           youtube: admin.youtube,
           whatsapp: admin.whatsapp,
+          designation: admin.designation,
           agreement:admin.agreement,
           address: admin.address
         };
