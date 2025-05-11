@@ -13,13 +13,24 @@ exports.getAllLogo = asyncHandler(async (req, res) => {
     res.status(200).json(logo);
 })
 // Update logo
-exports.updateLogo = asyncHandler(async (req, res) => {
+exports.updateLogo =asyncHandler(async (req, res) => {
     const image = req.file.filename;
-    const logo = await Logo.findByIdAndUpdate(req.params.id, { image }, {
-        new: true
-    });
-    res.status(200).json(logo);
-});
+  
+    // Check if there's already a logo
+    let logo = await Logo.findOne();
+  
+    if (logo) {
+      // Update existing logo
+      logo.image = image;
+      await logo.save();
+      return res.status(200).json(logo);
+    } else {
+      // Create new logo
+      logo = new Logo({ image });
+      await logo.save();
+      return res.status(201).json(logo);
+    }
+  });
 
 // delete all logo
 exports.deleteLogo = asyncHandler(async (req, res) => {
