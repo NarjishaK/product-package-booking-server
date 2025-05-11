@@ -77,8 +77,8 @@ exports.resetPassword = async (req, res) => {
 
 //create admin
 exports.create = asyncHandler(async (req, res) => {
-    const { name, email, password, role, phone ,designation} = req.body;
-    const image = req.file ? req.file.filename : null;
+  const { name, email, password, role, phone, designation, address } = req.body;
+  const image = req.file ? req.file.filename : null;
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({ message: "Please add all fields" });
     }
@@ -97,15 +97,18 @@ exports.create = asyncHandler(async (req, res) => {
       }
     }
 
-      const admin = await AdminsModel.create({
-      name,
-      email,
-      password,
-      role,
-      phone,
-      designation,
-      image,
-    });
+
+const admin = await AdminsModel.create({
+  name,
+  email,
+  password,
+  role,
+  phone,
+  designation,
+  image,
+  address,
+});
+
   
     if (admin) {
       return res.status(201).json({ message: "Admin created" });
@@ -130,7 +133,7 @@ exports.get = asyncHandler(async (req, res) => {
 exports.update = asyncHandler(async (req, res) => {
     const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address,agreement,designation } = req.body;
     const { id } = req.params;
-  
+   
     try {
       const admin = await AdminsModel.findById(id);
       if (!admin) {
@@ -139,13 +142,19 @@ exports.update = asyncHandler(async (req, res) => {
       // Check if email or phone is already being used by another admin
       const emailExists = await AdminsModel.findOne({ email, _id: { $ne: id } });
       const phoneExists = await AdminsModel.findOne({ phone, _id: { $ne: id } });
-  
+     
+      
       if (emailExists) {
         return res.status(400).json({ message: "Email already in use by another admin" });
       }
       if (phoneExists) {
         return res.status(400).json({ message: "Phone number already in use by another admin" });
       } 
+      let parsedAddress = address;
+      if (typeof address === 'string') {
+        parsedAddress = JSON.parse(address);
+      }
+      admin.address = parsedAddress;
       admin.email = email;
       admin.role = role;
       admin.name = name;
@@ -156,7 +165,6 @@ exports.update = asyncHandler(async (req, res) => {
       admin.whatsapp = whatsapp;
       admin.agreement=agreement;
       admin.designation=designation;
-      admin.address = address;
       if (req.files['image']) {
         admin.image = req.files['image'][0].filename;
       }

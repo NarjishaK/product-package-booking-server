@@ -51,7 +51,16 @@ const adminSchema = new mongoose.Schema({
   facebook: String,
   instagram: String,
   whatsapp: String,
-  address: String,
+  address: [
+    {
+      location: String,
+      country: String,
+      state: String,
+      district: String,
+      post: String,
+      addressline: String,
+    },
+  ],
 });
 
 adminSchema.pre("save", async function (next) {
