@@ -29,41 +29,19 @@ exports.create = asyncHandler(async (req, res) => {
     ? req.files["coverimage"][0].filename
     : null; 
 
-  const sizes = JSON.parse(req.body.sizes);
-
   const productData = {
     mainCategory: req.body.mainCategory,
-    meterial: req.body.meterial,
-    outermeterial: req.body.outermeterial,
-    discount: req.body.discount,
     gst: req.body.gst,
-    brand: req.body.brand,
-    height: req.body.height,
     about: req.body.about,
-    length: req.body.length,
-    weight: req.body.weight,
-    warrenty: req.body.warrenty,
-    compartment: req.body.compartment,
     coverimage: coverImage,
     videoLink: req.body.videoLink, 
-    rating: req.body.rating,
-    subCategory: req.body.subCategory,
     price: parseFloat(req.body.price),
     productId: newProductId,
-    modelNo: req.body.modelNo,
     date: new Date(req.body.date),
     title: req.body.title,
     description: req.body.description,
     images: images,
-    color: req.body.color,
-    returnpolicy: req.body.returnpolicy,
     tag: req.body.tag,
-    warehouse: req.body.warehouse,
-    sizes: sizes.map((size) => ({
-      size: size.value,
-      stock: size.stock,
-      selected: true,
-    })),
   };
 
   try {
@@ -104,9 +82,6 @@ exports.get = asyncHandler(async (req, res) => {
 exports.update = asyncHandler(async (req, res) => {
   try {
     const updates = req.body;
-    if (updates.sizes) {
-      updates.sizes = JSON.parse(updates.sizes);
-    }
     if (req.files) {
       if (req.files.images) {
         updates.images = req.files.images.map((file) => file.filename);
@@ -116,21 +91,6 @@ exports.update = asyncHandler(async (req, res) => {
       }
     }
     const updateObject = {};
-    if (updates.sizes) {
-      const sizeObject = {};
-      updates.sizes.forEach((size) => {
-        sizeObject[size.size] = {
-          size: size.size,
-          stock: size.stock,
-        };
-      });
-      updateObject.sizes = Object.values(sizeObject);
-    }
-    Object.keys(updates).forEach((key) => {
-      if (key !== "sizes") {
-        updateObject[key] = updates[key];
-      }
-    });
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: req.params.id },
       { $set: updateObject },
