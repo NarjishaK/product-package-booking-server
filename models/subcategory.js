@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-const subcategorySchema = new mongoose.Schema({
-    subcategory: {
+const packageSchema = new mongoose.Schema({
+    packagename: {
         type: String,
         required: true
     },
@@ -9,7 +9,13 @@ const subcategorySchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'MainCategory',
         required: true
+    },
+    fromDate: {
+        type: Date,
+    },
+    toDate: {
+        type: Date,
     }
 });
 
-module.exports = mongoose.model('SubCategory', subcategorySchema)
+module.exports = mongoose.model('Packages', packageSchema)
