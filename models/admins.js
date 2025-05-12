@@ -51,6 +51,7 @@ const adminSchema = new mongoose.Schema({
   facebook: String,
   instagram: String,
   whatsapp: String,
+  companyname: String,
   address: [
     {
       location: String,

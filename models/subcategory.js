@@ -15,6 +15,10 @@ const packageSchema = new mongoose.Schema({
     },
     toDate: {
         type: Date,
+    },
+    isActive: {
+        type: Boolean,
+        default: false
     }
 });
 

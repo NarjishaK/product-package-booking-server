@@ -77,7 +77,7 @@ exports.resetPassword = async (req, res) => {
 
 //create admin
 exports.create = asyncHandler(async (req, res) => {
-  const { name, email, password, role, phone, designation, address } = req.body;
+  const { name, email, password, role, phone, designation, address,companyname } = req.body;
   const image = req.file ? req.file.filename : null;
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({ message: "Please add all fields" });
@@ -105,6 +105,7 @@ const admin = await AdminsModel.create({
   role,
   phone,
   designation,
+  companyname,
   image,
   address,
 });
@@ -131,7 +132,7 @@ exports.get = asyncHandler(async (req, res) => {
 
 // Update admin
 exports.update = asyncHandler(async (req, res) => {
-    const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address,agreement,designation } = req.body;
+    const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address,agreement,designation,companyname } = req.body;
     const { id } = req.params;
    
     try {
@@ -165,6 +166,7 @@ exports.update = asyncHandler(async (req, res) => {
       admin.whatsapp = whatsapp;
       admin.agreement=agreement;
       admin.designation=designation;
+      admin.companyname=companyname;
       if (req.files['image']) {
         admin.image = req.files['image'][0].filename;
       }
@@ -223,6 +225,7 @@ exports.login = asyncHandler(async (req, res) => {
           youtube: admin.youtube,
           whatsapp: admin.whatsapp,
           designation: admin.designation,
+          companyname: admin.companyname,
           agreement:admin.agreement,
           address: admin.address
         };
