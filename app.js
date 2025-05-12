@@ -38,9 +38,7 @@ app.use(
       "http://localhost:5174",
       "http://localhost:3002",
       "http://localhost:3001",
-      "https://wildmanpremium.com",
-      "https://www.wildmanpremium.com",
-      "https://admin.wildmanpremium.com"
+      "https://dz.sstappstore.in",
     ],
     method: ["PUT", "DELETE", "PUSH", "GET", "POST", "PATCH"],
     credential: true,
