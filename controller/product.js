@@ -59,7 +59,7 @@ exports.create = asyncHandler(async (req, res) => {
 });
 //get all products
 exports.getAll = asyncHandler(async (req, res) => {
-  const products = await Product.find();
+  const products = await Product.find().populate("mainCategory");
   res.status(200).json(products);
 });
 
@@ -78,35 +78,49 @@ exports.get = asyncHandler(async (req, res) => {
 // });
 
 
-//update product
+// Fixed update product controller
 exports.update = asyncHandler(async (req, res) => {
   try {
-    const updates = req.body;
-    if (req.files) {
-      if (req.files.images) {
-        updates.images = req.files.images.map((file) => file.filename);
-      }
-      if (req.files.coverimage) {
-        updates.coverimage = req.files.coverimage[0].filename;
-      }
-    }
-    const updateObject = {};
-    const updatedProduct = await Product.findOneAndUpdate(
-      { _id: req.params.id },
-      { $set: updateObject },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedProduct) {
+    // Get the current product
+    const existingProduct = await Product.findById(req.params.id);
+    if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
+
+    const updates = { ...req.body };
+
+    // Handle file uploads if they exist, otherwise keep existing
+    if (req.files) {
+      if (req.files.images && req.files.images.length > 0) {
+        updates.images = req.files.images.map((file) => file.filename);
+      } else {
+        updates.images = existingProduct.images;
+      }
+
+      if (req.files.coverimage && req.files.coverimage[0]) {
+        updates.coverimage = req.files.coverimage[0].filename;
+      } else {
+        updates.coverimage = existingProduct.coverimage;
+      }
+    } else {
+      // If no files at all were uploaded, keep both existing
+      updates.images = existingProduct.images;
+      updates.coverimage = existingProduct.coverimage;
+    }
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: req.params.id },
+      { $set: updates },
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json(updatedProduct);
   } catch (error) {
     console.error("Error updating product:", error);
-    res
-      .status(500)
-      .json({ message: "Failed to update product", error: error.message });
+    res.status(500).json({
+      message: "Failed to update product",
+      error: error.message,
+    });
   }
 });
 

@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema({
     type: [String], 
     default: [], 
   },
-      mainCategory: { type: String, required: true },
+      mainCategory: { type: mongoose.Schema.Types.ObjectId, ref: 'MainCategory', required: true },
       gst: { type: Number,  },
       coverimage: { type: String},
       price: { type: Number, required: true },
