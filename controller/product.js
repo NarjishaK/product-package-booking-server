@@ -22,25 +22,17 @@ const generateProductId = async () => {
 exports.create = asyncHandler(async (req, res) => {
   // Generate the new product ID
   const newProductId = await generateProductId();
-  const images = req.files["images"]
-    ? req.files["images"].map((file) => file.filename)
-    : [];
   const coverImage = req.files["coverimage"]
     ? req.files["coverimage"][0].filename
     : null; 
 
   const productData = {
     mainCategory: req.body.mainCategory,
-    gst: req.body.gst,
     about: req.body.about,
     coverimage: coverImage,
-    videoLink: req.body.videoLink, 
-    price: parseFloat(req.body.price),
     productId: newProductId,
-    date: new Date(req.body.date),
     title: req.body.title,
     description: req.body.description,
-    images: images,
     tag: req.body.tag,
   };
 
@@ -91,11 +83,6 @@ exports.update = asyncHandler(async (req, res) => {
 
     // Handle file uploads if they exist, otherwise keep existing
     if (req.files) {
-      if (req.files.images && req.files.images.length > 0) {
-        updates.images = req.files.images.map((file) => file.filename);
-      } else {
-        updates.images = existingProduct.images;
-      }
 
       if (req.files.coverimage && req.files.coverimage[0]) {
         updates.coverimage = req.files.coverimage[0].filename;
@@ -104,7 +91,6 @@ exports.update = asyncHandler(async (req, res) => {
       }
     } else {
       // If no files at all were uploaded, keep both existing
-      updates.images = existingProduct.images;
       updates.coverimage = existingProduct.coverimage;
     }
 

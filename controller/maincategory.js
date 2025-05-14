@@ -3,12 +3,10 @@ const Category = require("../models/maincategory");
 
 //create category
 exports.create = asyncHandler(async (req, res) => {
-    const image = req.file.filename;
    const {name,vendor} = req.body
     const category = await Category.create({
         name,
-        vendor,
-        image
+        vendor
     });
     res.status(200).json(category);
 })
@@ -32,7 +30,6 @@ exports.update = asyncHandler(async (req, res) => {
     const updates = {};
     if (name) updates.name = name;
     if (vendor) updates.vendor = vendor;
-    if (req.file) updates.image = req.file.filename;
   
     const category = await Category.findByIdAndUpdate(req.params.id, updates, {
       new: true,
