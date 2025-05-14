@@ -132,7 +132,7 @@ exports.get = asyncHandler(async (req, res) => {
 
 // Update admin
 exports.update = asyncHandler(async (req, res) => {
-    const { email, name, phone, role,instagram,facebook,youtube,whatsapp,address,agreement,designation,companyname } = req.body;
+    const { email, name, phone, role,whatsapp,address,agreement,designation,companyname } = req.body;
     const { id } = req.params;
    
     try {
@@ -160,9 +160,6 @@ exports.update = asyncHandler(async (req, res) => {
       admin.role = role;
       admin.name = name;
       admin.phone = phone;
-      admin.instagram = instagram;
-      admin.facebook = facebook;
-      admin.youtube = youtube;
       admin.whatsapp = whatsapp;
       admin.agreement=agreement;
       admin.designation=designation;
@@ -220,9 +217,6 @@ exports.login = asyncHandler(async (req, res) => {
           image: admin.image,
           proofimage: admin.proofimage,
           password: password,
-          instagram: admin.instagram,
-          facebook: admin.facebook,
-          youtube: admin.youtube,
           whatsapp: admin.whatsapp,
           designation: admin.designation,
           companyname: admin.companyname,

@@ -47,9 +47,6 @@ const adminSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  youtube: String,
-  facebook: String,
-  instagram: String,
   whatsapp: String,
   companyname: String,
   address: [
