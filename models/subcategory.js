@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { image } = require('pdfkit');
 
 const packageSchema = new mongoose.Schema({
     packagename: {
@@ -9,6 +10,12 @@ const packageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'MainCategory',
         required: true
+    },
+    price: {
+        type: Number,
+    },
+    image: {
+        type: String,
     },
     fromDate: {
         type: Date,
