@@ -39,6 +39,7 @@ app.use(
       "http://localhost:3002",
       "http://localhost:3001",
       "https://dz.sstappstore.in",
+      "https://dzhome.sstappstore.in",
     ],
     method: ["PUT", "DELETE", "PUSH", "GET", "POST", "PATCH"],
     credential: true,
