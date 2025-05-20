@@ -16,9 +16,6 @@ const customerSchema = new mongoose.Schema({
     address: {
       type: String,
     },
-    shopname: {
-      type: String,
-    },
     password: {
       type: String,
     },

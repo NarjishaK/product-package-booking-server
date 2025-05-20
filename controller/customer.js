@@ -85,7 +85,7 @@ exports.getCustomerSuggestions = async (req, res) => {
     try {
       const { query } = req.query;
       const customers = await Customer.find({ name: { $regex: query, $options: 'i' } })
-        .select('name email phone address shopname')
+        .select('name email phone address')
         .limit(5);
       res.json(customers);
     } catch (error) {
@@ -113,7 +113,6 @@ exports.getCustomerSuggestions = async (req, res) => {
           _id: admin._id,
           phone: admin.phone,
           address: admin.address,
-          shopname: admin.shopname,
           password: password,
         };
 
