@@ -27,7 +27,7 @@ exports.getAll = asyncHandler(async (req, res) => {
 
 //get by Id
 exports.get = asyncHandler(async (req, res) => {
-    const subcategory = await SubCategory.findById(req.params.id);
+    const subcategory = await SubCategory.findById(req.params.id).populate('category');
     res.status(200).json(subcategory);
 })
 

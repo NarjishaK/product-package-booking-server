@@ -5,7 +5,14 @@ var Controller = require('../controller/customercart');
 //customer cart  routes
 router.post('/',Controller.create)
 router.get("/:customerId",Controller.getByCustomerId);
-router.delete('/:id',Controller.delete)
+// Update cart item quantity
+router.put('/:id', Controller.updateQuantity);
+
+// Delete specific cart item
+router.delete('/:id', Controller.delete);
+
+// Clear customer cart (remove all items)
+router.delete('/customer/:customerId', Controller.clearCart);
 
 
 module.exports = router;
