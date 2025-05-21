@@ -1,5 +1,31 @@
 const asyncHandler = require("express-async-handler");
 const SubCategory = require("../models/subcategory");
+const Product = require('../models/products');
+
+exports.getPackageWithProducts = async (req, res) => {
+  try {
+    const { packageId } = req.params;
+
+    // 1. Find the package by ID and populate the category if needed
+    const packageDetails = await SubCategory.findById(packageId).populate('category');
+    if (!packageDetails) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    // 2. Find all products with the same mainCategory
+    const products = await Product.find({ mainCategory: packageDetails.category._id });
+
+    // 3. Return both package and related products
+    res.status(200).json({
+      package: packageDetails,
+      products: products
+    });
+
+  } catch (error) {
+    console.error('Error fetching package and products:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 //create subcategory
 exports.create = asyncHandler(async (req, res) => {
