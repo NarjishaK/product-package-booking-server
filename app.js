@@ -40,7 +40,7 @@ app.use(
       "http://localhost:3001",
       "http://localhost:3000",
       "https://dz.sstappstore.in",
-      "https://dzhome.sstappstore.in",
+      "https://deelzon.com",
     ],
     method: ["PUT", "DELETE", "PUSH", "GET", "POST", "PATCH"],
     credential: true,
