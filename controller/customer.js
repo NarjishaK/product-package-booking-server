@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const OTPService = require('../services/otpService'); // Assume this service handles OTP generation and verification
-
+require('dotenv').config(); 
 //create customer
 exports.create = asyncHandler(async (req, res) => {
     const { name, email, phone, password } = req.body;
@@ -198,5 +198,195 @@ exports.resetPassword = async (req, res) => {
     res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error updating password', error });
+  }
+};
+
+
+
+
+
+//contact email
+// const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+// Create transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD
+  }
+});
+
+// Verify transporter configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.log('Transporter configuration error:', error);
+  } else {
+    console.log('Email transporter is ready');
+  }
+});
+
+exports.sendContactEmail = async (req, res) => {
+  try {
+    const { firstName, email, subject, phone, message } = req.body;
+
+    // Validate required fields
+    if (!firstName || !email) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name and email are required fields'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid email address'
+      });
+    }
+
+    // Email content for you (receiver)
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #007bff; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .field { margin-bottom: 15px; padding: 10px; background: white; border-radius: 5px; border-left: 4px solid #007bff; }
+          .field-label { font-weight: bold; color: #007bff; margin-bottom: 5px; }
+          .field-value { color: #333; }
+          .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>New Contact Form Submission</h1>
+            <p>You have received a new message from your website</p>
+          </div>
+          <div class="content">
+            <div class="field">
+              <div class="field-label">Name:</div>
+              <div class="field-value">${firstName}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Email:</div>
+              <div class="field-value">${email}</div>
+            </div>
+            ${subject ? `
+            <div class="field">
+              <div class="field-label">Subject:</div>
+              <div class="field-value">${subject}</div>
+            </div>
+            ` : ''}
+            ${phone ? `
+            <div class="field">
+              <div class="field-label">Phone:</div>
+              <div class="field-value">${phone}</div>
+            </div>
+            ` : ''}
+            ${message ? `
+            <div class="field">
+              <div class="field-label">Message:</div>
+              <div class="field-value">${message}</div>
+            </div>
+            ` : ''}
+            <div class="field">
+              <div class="field-label">Submitted At:</div>
+              <div class="field-value">${new Date().toLocaleString()}</div>
+            </div>
+          </div>
+          <div class="footer">
+            <p>This email was sent from your website contact form</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Email options for you (receiver)
+    const mailOptions = {
+      from: `"Contact Form" <${process.env.EMAIL}>`,
+      to: process.env.EMAIL,
+      subject: subject ? `Contact Form: ${subject}` : `New Contact Form Submission from ${firstName}`,
+      html: htmlContent,
+      replyTo: email
+    };
+
+    // Send email to you
+    await transporter.sendMail(mailOptions);
+
+    // Auto-reply email to sender
+    const autoReplyHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: #28a745; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+          .message { background: white; padding: 20px; border-radius: 5px; border-left: 4px solid #28a745; }
+          .contact-info { background: white; padding: 15px; border-radius: 5px; margin-top: 20px; }
+          .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Thank You for Contacting Us!</h1>
+            <p>We've received your message</p>
+          </div>
+          <div class="content">
+            <div class="message">
+              <p>Dear ${firstName},</p>
+              <p>Thank you for reaching out to us! We have successfully received your message and will get back to you as soon as possible.</p>
+              <p>We typically respond within 24-48 hours during business days.</p>
+            </div>
+            <div class="contact-info">
+              <h3>Our Contact Information:</h3>
+              <p><strong>Email:</strong> sales@deelzon.com</p>
+              <p><strong>Phone:</strong> 96455 22822</p>
+              <p><strong>Address:</strong> Deelzon c/o Elite Company, Vadanapally, Thrissur</p>
+            </div>
+          </div>
+          <div class="footer">
+            <p>This is an automated response. Please do not reply to this email.</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    // Auto-reply options
+    const autoReplyOptions = {
+      from: `"Deelzon Support" <${process.env.EMAIL}>`,
+      to: email,
+      subject: 'Thank you for contacting us - We received your message',
+      html: autoReplyHtml
+    };
+
+    // Send auto-reply to sender
+    await transporter.sendMail(autoReplyOptions);
+
+    // Success response
+    res.status(200).json({
+      success: true,
+      message: 'Your message has been sent successfully! We will get back to you soon.'
+    });
+
+  } catch (error) {
+    console.error('Email sending error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send message. Please try again later.',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };

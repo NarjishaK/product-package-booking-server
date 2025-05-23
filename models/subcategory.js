@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { image } = require('pdfkit');
 
 const packageSchema = new mongoose.Schema({
     packagename: {
