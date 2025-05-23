@@ -204,8 +204,48 @@ exports.resetPassword = async (req, res) => {
 
 
 
+//update password
+exports.updatePassword = async (req, res) => {
+  const { id } = req.params;
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
 
-//contact email
+  if (newPassword !== confirmNewPassword) {
+    return res.status(400).json({ message: "Passwords do not match" });
+  }
+
+  try {
+    const customer = await Customer.findById(id);
+    if (!customer) return res.status(404).json({ message: "Customer not found" });
+
+    const isMatch = await bcrypt.compare(oldPassword, customer.password);
+    if (!isMatch) return res.status(401).json({ message: "Incorrect old password" });
+
+    customer.password = newPassword;
+    await customer.save();
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -227,6 +267,8 @@ transporter.verify((error, success) => {
   }
 });
 
+
+//customer service
 exports.sendContactEmail = async (req, res) => {
   try {
     const { firstName, email, subject, phone, message } = req.body;

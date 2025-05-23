@@ -14,6 +14,8 @@ router.get('/search/suggest',Controller.getCustomerSuggestions)
 router.post('/forgot-password',Controller.sendOTP);
 router.post('/verify-otp', Controller.verifyOTP);
 router.post('/reset-password', Controller.resetPassword);
+
+router.put("/update-password/:id", Controller.updatePassword);
 router.post("/customer/send", Controller.sendContactEmail
 );
 
