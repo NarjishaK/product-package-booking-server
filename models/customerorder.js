@@ -7,23 +7,24 @@ const customerorderSchema = new Schema({
         unique: true,
         required: true,
       },
-      gift: {
-        type: Boolean,
-        default: false,
-      },
-      giftMessage: {
-        type: String,
-      },
-      adminName: String,
       totalAmount: {
         type: Number,
+        required: true,
+      },
+      customerId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Customer",
         required: true,
       },
       customerName: String,
       email: String,
       phone: String,
       address: String,
-      shopName: String,
+      address1: String,
+      country: String,
+      state: String,
+      city: String,
+      Pincode: String,
       orderStatus: {
         type: String,
         enum: ["Packing", "Delivered", "Cancelled"],
@@ -57,39 +58,24 @@ const customerorderSchema = new Schema({
       },
       deliveryDate: {
         type: String,
-
       },
       note: {
         type: String,
       },
-      Pincode: String,
-      customerId: {
-        type: Schema.Types.ObjectId,
-        required: true,
-      },
-      products: [{
-        productDetails: {
-          id: String,
+      package: [{
+        packageDetails: {
+          _id: String,
           mainCategory: String,
-          subCategory: String,
-          color: String,
           price: Number,
-          coverImage: String,
-          title: String,
-          gst: Number,
-          discount: Number,
-        },
-        sizeDetails: {
-          sizeId: String,
-          size: String,
+          image: String,
+          packagename: String,
           quantity: Number,
-          totalAmount: Number,
         }
       }],
-      return: {
-        type: Boolean,
-        default: false
-    }
+      packageId:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Packages",
+      }]
     });
 
 module.exports = mongoose.model("CustomerOrder", customerorderSchema);
