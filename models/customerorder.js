@@ -65,7 +65,7 @@ const customerorderSchema = new Schema({
       package: [{
         packageDetails: {
           _id: String,
-          mainCategory: String,
+          category: {type: mongoose.Schema.Types.ObjectId, ref: "MainCategory"},
           price: Number,
           image: String,
           packagename: String,

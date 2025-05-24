@@ -65,23 +65,46 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    // Generate unique order ID
-    const generateOrderId = () => {
-      const timestamp = Date.now().toString(36);
-      const randomStr = Math.random().toString(36).substr(2, 5);
-      return `ORD-${timestamp}-${randomStr}`.toUpperCase();
+    // Generate sequential order ID
+    const generateOrderId = async () => {
+      try {
+        const lastOrder = await CustomerOrder.findOne().sort({ _id: -1 }).limit(1);
+        let lastOrderId = lastOrder
+          ? parseInt(lastOrder.orderId.replace("ORID", ""))
+          : 0;
+        lastOrderId++;
+        return `ORID${String(lastOrderId).padStart(7, "0")}`;
+      } catch (error) {
+        console.error("Error generating order ID:", error);
+        // Fallback to timestamp-based ID if there's an error
+        const timestamp = Date.now().toString(36);
+        const randomStr = Math.random().toString(36).substr(2, 5);
+        return `ORID-${timestamp}-${randomStr}`.toUpperCase();
+      }
     };
 
     let orderId;
     let isUnique = false;
+    let attempts = 0;
+    const maxAttempts = 10;
     
-    // Ensure unique order ID
-    while (!isUnique) {
-      orderId = generateOrderId();
+    // Ensure unique order ID with retry mechanism
+    while (!isUnique && attempts < maxAttempts) {
+      orderId = await generateOrderId();
       const existingOrder = await CustomerOrder.findOne({ orderId });
       if (!existingOrder) {
         isUnique = true;
+      } else {
+        attempts++;
+        console.log(`Order ID ${orderId} already exists, attempting again (${attempts}/${maxAttempts})`);
       }
+    }
+
+    if (!isUnique) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to generate unique order ID after multiple attempts"
+      });
     }
 
     // Prepare package details for order
@@ -106,7 +129,7 @@ exports.createOrder = async (req, res) => {
           packageDetails.push({
             packageDetails: {
               _id: packageInfo._id.toString(),
-              mainCategory: packageInfo.mainCategory,
+              category: packageInfo.category,
               price: packageInfo.price,
               image: packageInfo.image,
               packagename: packageInfo.packagename,
@@ -123,7 +146,7 @@ exports.createOrder = async (req, res) => {
         packageDetails.push({
           packageDetails: {
             _id: item._id || item.id,
-            mainCategory: item.mainCategory,
+            category: item.category,
             price: item.price,
             image: item.image,
             packagename: item.packagename,
@@ -207,8 +230,7 @@ exports.createOrder = async (req, res) => {
     // Populate the order with package details
     const populatedOrder = await CustomerOrder.findById(savedOrder._id)
       .populate('customerId', 'name email phone')
-      .populate('packageId', 'packagename price image mainCategory');
-
+      .populate('packageId', 'packagename price image category');
     res.status(201).json({
       success: true,
       message: "Order created successfully",
@@ -227,93 +249,37 @@ exports.createOrder = async (req, res) => {
 
 
 
-
-// Generate unique orderId starting with CUT-ORID000001 format
-const generateOrderId = async () => {
-    const lastOrder = await CustomerOrder.findOne().sort({ _id: -1 }).limit(1);
-    let lastOrderId = lastOrder
-      ? parseInt(lastOrder.orderId.replace("CUT-ORID", ""))
-      : 0;
-    lastOrderId++;
-    return `CUT-ORID${String(lastOrderId).padStart(7, "0")}`;
-  };
-  exports.create = async (req, res) => {
-    try {
-      const orderId = await generateOrderId();
-      const {
-        totalAmount,
-        customerName,
-        deliveryDate,
-        email,
-        phone,
-        address,
-        shopName,
-        paymentMethod,
-        paymentStatus,
-        deliveryStatus,
-        orderDate,
-        note,
-        Pincode,
-        products,
-        customerId,
-        gift,
-        giftMessage
-      } = req.body;
-  
-      if (!customerId) {
-        return res.status(400).json({ message: "Customer ID is required." });
-      }
-  
-      // Create a new order
-      const newOrder = new CustomerOrder({
-        customerId,
-        orderId,
-        totalAmount,
-        customerName,
-        email,
-        phone,
-        address,
-        shopName,
-        paymentMethod,
-        paymentStatus,
-        deliveryStatus,
-        orderDate,
-        deliveryDate,
-        note,
-        Pincode,
-        products,
-        gift,
-        giftMessage
-      });
-  
-      await newOrder.save();
-      return res.status(201).json({ message: "Order created successfully", order: newOrder });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ message: "Server error", error });
-    }
-  };
   
 
   //get customer orders by customerId
   exports.getOrderDetailsByCustomer = async (req, res) => {
-    try {
-      const customerId = req.params.customerId;
-      
-      // Fetch the orders and populate the products
-      const orders = await CustomerOrder.find({ customerId })
-        .populate('products'); 
-  
-      if (orders.length === 0) {
-        return res.status(404).json({ message: "No orders found for this customer" });
-      }
-  
-      res.status(200).json({ orders });
-    } catch (error) {
-      res.status(500).json({ message: "Server error", error });
-    }
-  };
+  try {
+    const { customerId } = req.params;
+    
+    const orders = await CustomerOrder.find({ customerId })
+      .populate('customerId', 'name email phone')
+      .populate('packageId', 'packagename price image category')
+        .populate({
+        path: 'package.packageDetails.category',
+        model: 'MainCategory',
+        select: 'name vendor'
+      })
+      .sort({ orderDate: -1 });
 
+    res.status(200).json({
+      success: true,
+      orders
+    });
+
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders",
+      error: error.message
+    });
+  }
+};
   //get all customer order
   exports.getAll = async (req, res) => {
     try {
