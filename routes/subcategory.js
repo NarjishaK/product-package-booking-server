@@ -34,6 +34,8 @@ router.get('/subcategory', async (req, res) => {
 //sub category routes
 router.post('/',upload.single("image"),SubController.create)
 router.get('/package/:packageId',SubController.getPackageWithProducts);
+// all packages with full details
+router.get('/allpackage',SubController.getPackageWithAllProducts);
 router.get('/',SubController.getAll)
 router.get('/:id',SubController.get)
 router.put('/:id',upload.single("image"),SubController.update)

@@ -27,6 +27,25 @@ exports.getPackageWithProducts = async (req, res) => {
   }
 };
 
+//get all packages with the same mainCategory and products
+exports.getPackageWithAllProducts = async (req, res) => {
+  try {
+    const packages = await SubCategory.find()
+      .populate({
+        path: 'category',
+        populate: {
+          path: 'vendor',
+          model: 'Admin'
+        }
+      });
+
+    res.status(200).json(packages);
+  } catch (error) {
+    console.error('Error fetching packages:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}
+
 //create subcategory
 exports.create = asyncHandler(async (req, res) => {
   const { packagename, category, price, fromDate, toDate } = req.body;
