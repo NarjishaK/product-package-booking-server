@@ -300,48 +300,62 @@ exports.getCustomerSuggestions = async (req, res) => {
   };
 
   //login customer
-  exports.login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-    try {
-      const admin = await Customer.findOne({ email: email });
-      if (!admin) {
-        console.log("No user found with email:", email);
-        return res
-          .status(400)
-          .json({ invalid: true, message: "Invalid email or password" });
-      }
-      const isPasswordMatch = await bcrypt.compare(password, admin.password);
-      if (isPasswordMatch) {
-        console.log("Password matched for user:", email);
-        const customerDetails = {
-          name: admin.name,
-          email: admin.email,
-          _id: admin._id,
-          phone: admin.phone,
-          address: admin.address,
-          password: password,
-        };
-
-        const token = jwt.sign(
-          { email: admin.email, id: admin._id },
-          "myjwtsecretkey",
-          { expiresIn: "1h" }
-        );
-        admin.tokens = token;
-        await admin.save();
-
-        return res.status(200).json({ token, customerDetails });
-      } else {
-        console.log("Invalid password for user:", email);
-        return res
-          .status(400)
-          .json({ invalid: true, message: "Invalid email or password" });
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-      return res.status(500).json({ error: "Server error, please try again" });
+//login customer
+exports.login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const admin = await Customer.findOne({ email: email });
+    if (!admin) {
+      console.log("No user found with email:", email);
+      return res
+        .status(400)
+        .json({ invalid: true, message: "Invalid email or password" });
     }
-  });
+
+    const isPasswordMatch = await bcrypt.compare(password, admin.password);
+    if (isPasswordMatch) {
+      console.log("Password matched for user:", email);
+      
+      // Check if email is verified
+      if (!admin.isEmailVerified) {
+        console.log("Email not verified for user:", email);
+        return res
+          .status(400)
+          .json({ 
+            emailNotVerified: true, 
+            message: "Please verify your email before logging in. Check your inbox for the verification link." 
+          });
+      }
+
+      const customerDetails = {
+        name: admin.name,
+        email: admin.email,
+        _id: admin._id,
+        phone: admin.phone,
+        address: admin.address,
+        password: password,
+      };
+
+      const token = jwt.sign(
+        { email: admin.email, id: admin._id },
+        "myjwtsecretkey",
+        { expiresIn: "1h" }
+      );
+      admin.tokens = token;
+      await admin.save();
+
+      return res.status(200).json({ token, customerDetails });
+    } else {
+      console.log("Invalid password for user:", email);
+      return res
+        .status(400)
+        .json({ invalid: true, message: "Invalid email or password" });
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    return res.status(500).json({ error: "Server error, please try again" });
+  }
+});
 
 
 // Send OTP for password reset
