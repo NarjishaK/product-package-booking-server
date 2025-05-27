@@ -23,6 +23,24 @@ const customerSchema = new mongoose.Schema({
       type: String,
       default: "",
     },
+    // Email verification fields
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+    },
+    emailVerificationToken: {
+      type: String,
+    },
+    emailVerificationExpires: {
+      type: Date,
+    },
+    // Account status
+    isActive: {
+      type: Boolean,
+      default: false, // Account is inactive until email is verified
+    },
+  }, {
+    timestamps: true,
   });
   
   // Hash the password before saving the customer, but only if the password is provided
