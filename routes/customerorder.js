@@ -37,31 +37,8 @@ router.put('/:id/delivered', async (req, res) => {
             return res.status(404).json({ message: 'Order not found' });
         }
 
-        if (!order.products || order.products.length === 0) {
+        if (!order.package || order.package.length === 0) {
             return res.status(400).json({ message: 'No products found in the order' });
-        }
-
-        for (const orderedProduct of order.products) {
-            const productId = orderedProduct.productDetails.id; // Changed from productId to id
-            const { size, quantity } = orderedProduct.sizeDetails;
-
-            const product = await Product.findById(productId);
-            if (!product) {
-                return res.status(404).json({ message: `Product not found: ${productId}` });
-            }
-
-            const sizeIndex = product.sizes.findIndex(s => s.size === parseInt(size));
-            if (sizeIndex === -1) {
-                return res.status(400).json({ message: `Size ${size} not found for product ${productId}` });
-            }
-
-            if (product.sizes[sizeIndex].stock < quantity) {
-                return res.status(400).json({ message: `Insufficient stock for product ${productId}, size ${size}` });
-            }
-
-            // Deduct the stock
-            product.sizes[sizeIndex].stock -= quantity;
-            await product.save();
         }
 
         // Update order status
@@ -90,26 +67,6 @@ router.put('/:id/return', async (req, res) => {
         if (order.return) {
             return res.status(400).json({ message: 'Order has already been returned' });
         }
-
-        for (const orderedProduct of order.products) {
-            const productId = orderedProduct.productDetails.id;
-            const { size, quantity } = orderedProduct.sizeDetails;
-
-            const product = await Product.findById(productId);
-            if (!product) {
-                return res.status(404).json({ message: `Product not found: ${productId}` });
-            }
-
-            const sizeIndex = product.sizes.findIndex(s => s.size === parseInt(size));
-            if (sizeIndex === -1) {
-                return res.status(400).json({ message: `Size ${size} not found for product ${productId}` });
-            }
-
-            // Restore the stock
-            product.sizes[sizeIndex].stock += quantity;
-            await product.save();
-        }
-
         // Update order status
         order.return = true;
         order.deliveryStatus = 'Returned';

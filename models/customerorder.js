@@ -27,7 +27,7 @@ const customerorderSchema = new Schema({
       Pincode: String,
       orderStatus: {
         type: String,
-        enum: ["Packing", "Delivered", "Cancelled"],
+        enum: ["Packing", "Delivered", "Cancelled","Returned"],
         default: "Packing",
       },
       paymentMethod: {
