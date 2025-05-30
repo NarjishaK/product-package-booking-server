@@ -121,3 +121,27 @@ exports.delete = asyncHandler(async (req, res) => {
     res.status(200).json(subcategory);
 })
 
+
+//package isActive from false to true
+exports.deactivatePackage = async (req, res) => {
+  try {
+    const packageId = req.params.id;
+    const existingPackage = await SubCategory.findById(packageId);
+
+    if (!existingPackage) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+
+    const newStatus = !existingPackage.isActive;
+
+    existingPackage.isActive = newStatus;
+    await existingPackage.save();
+
+    res.status(200).json({
+      message: `Package ${newStatus ? 'activated' : 'deactivated'} successfully`,
+      package: existingPackage,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  }
+};

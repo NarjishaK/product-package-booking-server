@@ -40,4 +40,6 @@ router.get('/',SubController.getAll)
 router.get('/:id',SubController.get)
 router.put('/:id',upload.single("image"),SubController.update)
 router.delete('/:id',SubController.delete)
+//package isActive from false to true
+router.put('/package/:id/toggle', SubController.deactivatePackage);
 module.exports = router;
