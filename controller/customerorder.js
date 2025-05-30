@@ -313,3 +313,39 @@ exports.delete =async (req, res) => {
   }
 };
 
+
+
+
+// controllers/packageStatsController.js
+
+exports.getBestSellingPackages = async (req, res) => {
+  try {
+    const bestSelling = await CustomerOrder.aggregate([
+      { $unwind: "$packageId" },
+      {
+        $group: {
+          _id: "$packageId",
+          totalSold: { $sum: 1 },
+        },
+      },
+      { $sort: { totalSold: -1 } },
+      {
+        $lookup: {
+          from: "packages", // collection name in MongoDB (lowercase, plural)
+          localField: "_id",
+          foreignField: "_id",
+          as: "packageDetails",
+        },
+      },
+      {
+        $unwind: "$packageDetails",
+      },
+    ]);
+
+    res.status(200).json(bestSelling);
+  } catch (error) {
+    console.error("Error fetching bestselling packages:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

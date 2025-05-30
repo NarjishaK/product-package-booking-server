@@ -5,6 +5,7 @@ const Order = require('../models/customerorder');
 const Product =require('../models/products');
 
 router.post('/create', Controller.createOrder);
+router.get("/bestselling-packages",Controller.getBestSellingPackages);
 router.get("/:customerId",Controller.getOrderDetailsByCustomer)
 router.get("/",Controller.getAll)
 router.get("/:id",Controller.get)
