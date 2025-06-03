@@ -78,18 +78,17 @@ exports.updateQuantity = asyncHandler(async (req, res) => {
 
 // Delete cart item
 exports.delete = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    
-    const cartItem = await CustomerCart.findById(id);
-    
-    if (!cartItem) {
-        return res.status(404).json({ message: "Cart item not found" });
-    }
-    
-    await cartItem.remove();
-    
-    res.status(200).json({ message: "Item removed from cart" });
+  const { id } = req.params;
+
+  const cartItem = await CustomerCart.findByIdAndDelete(id);
+
+  if (!cartItem) {
+    return res.status(404).json({ message: "Cart item not found" });
+  }
+
+  res.status(200).json({ message: "Item removed from cart" });
 });
+
 
 // Clear customer cart (remove all items)
 exports.clearCart = asyncHandler(async (req, res) => {
