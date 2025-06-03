@@ -177,7 +177,7 @@ const sendVendorWelcomeEmail = async (vendorEmail, vendorName, password, company
                 </div>
                 <div class="footer">
                     <p>This is an automated message. Please do not reply to this email.</p>
-                    <p>© ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+                    <p>© ${new Date().getFullYear()} Your Deelzon. All rights reserved.</p>
                 </div>
             </div>
         </body>
