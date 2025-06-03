@@ -1,3 +1,62 @@
+// const asyncHandler = require("express-async-handler");
+// const AdminsModel = require("../models/admins");
+// const bcrypt = require("bcrypt");
+// const jwt = require("jsonwebtoken");
+// const crypto = require('crypto');
+// const nodemailer = require('nodemailer');
+// require('dotenv').config(); 
+
+
+// // Nodemailer configuration
+// const transporter = nodemailer.createTransport({
+//     service: 'gmail', 
+//     auth: {
+//         user: process.env.EMAIL,
+//         pass: process.env.PASSWORD
+//     }
+// });
+// //create admin
+// exports.create = asyncHandler(async (req, res) => {
+//   const { name, email, password, role, phone, designation, address,companyname } = req.body;
+//   const image = req.file ? req.file.filename : null;
+//     if (!name || !email || !password || !role || !phone) {
+//       return res.status(400).json({ message: "Please add all fields" });
+//     }
+  
+// // Check  email or phone already exists
+//     const adminExists = await AdminsModel.findOne({ 
+//       $or: [{ email: email }, { phone: phone }] 
+//     });
+  
+//     if (adminExists) {
+//       if (adminExists.email === email) {
+//         return res.status(400).json({ message: "Email already exists" });
+//       }
+//       if (adminExists.phone === phone) {
+//         return res.status(400).json({ message: "Phone number already exists" });
+//       }
+//     }
+
+
+// const admin = await AdminsModel.create({
+//   name,
+//   email,
+//   password,
+//   role,
+//   phone,
+//   designation,
+//   companyname,
+//   image,
+//   address,
+// });
+
+  
+//     if (admin) {
+//       return res.status(201).json({ message: "Admin created" });
+//     } else {
+//       return res.status(400).json({ message: "Admin not created" });
+//     }
+//   });
 const asyncHandler = require("express-async-handler");
 const AdminsModel = require("../models/admins");
 const bcrypt = require("bcrypt");
@@ -5,7 +64,6 @@ const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 require('dotenv').config(); 
-
 
 // Nodemailer configuration
 const transporter = nodemailer.createTransport({
@@ -16,6 +74,194 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Function to send welcome email to vendor
+const sendVendorWelcomeEmail = async (vendorEmail, vendorName, password, companyName) => {
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: vendorEmail,
+        subject: 'Welcome to Vendor Admin Panel - Access Credentials',
+        html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                .container {
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                }
+                .header {
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 8px 8px 0 0;
+                }
+                .content {
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 0 0 8px 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .credentials {
+                    background-color: #f4f4f4;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    border-left: 4px solid #4CAF50;
+                }
+                .btn {
+                    display: inline-block;
+                    background-color: #4CAF50;
+                    color: white;
+                    padding: 12px 25px;
+                    text-decoration: none;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
+                    font-size: 12px;
+                }
+                .warning {
+                    background-color: #fff3cd;
+                    border: 1px solid #ffeaa7;
+                    color: #856404;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎉 Welcome to Vendor Admin Panel!</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello ${vendorName},</h2>
+                    <p>Congratulations! You have been successfully registered as a vendor for <strong>${companyName}</strong>.</p>
+                    
+                    <p>You now have access to the Vendor Admin Panel where you can:</p>
+                    <ul>
+                        <li>Manage your vendor profile</li>
+                        <li>View and update your products/services</li>
+                        <li>Track your orders and transactions</li>
+                        <li>Access vendor dashboard and analytics</li>
+                    </ul>
+
+                    <div class="credentials">
+                        <h3>🔐 Your Login Credentials:</h3>
+                        <p><strong>Email:</strong> ${vendorEmail}</p>
+                        <p><strong>Password:</strong> ${password}</p>
+                        <p><strong>Role:</strong> Vendor</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Security Notice:</strong> Please change your password after your first login for security purposes.
+                    </div>
+
+                    <p>Click the button below to access your vendor admin panel:</p>
+                    <a href="${process.env.BACKEND_URL || 'http://localhost:5173'}" class="btn">
+                        Access Vendor Panel
+                    </a>
+
+                    <p>If you have any questions or need assistance, please don't hesitate to contact our support team.</p>
+                    
+                    <p>Best regards,<br/>
+                    The Admin Team</p>
+                </div>
+                <div class="footer">
+                    <p>This is an automated message. Please do not reply to this email.</p>
+                    <p>© ${new Date().getFullYear()} Your Company Name. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Welcome email sent successfully to:', vendorEmail);
+        return { success: true, message: 'Email sent successfully' };
+    } catch (error) {
+        console.error('Error sending welcome email:', error);
+        return { success: false, message: 'Failed to send email', error: error.message };
+    }
+};
+
+//create admin
+exports.create = asyncHandler(async (req, res) => {
+    const { name, email, password, role, phone, designation, address, companyname } = req.body;
+    const image = req.file ? req.file.filename : null;
+    
+    if (!name || !email || !password || !role || !phone) {
+        return res.status(400).json({ message: "Please add all fields" });
+    }
+
+    // Check if email or phone already exists
+    const adminExists = await AdminsModel.findOne({ 
+        $or: [{ email: email }, { phone: phone }] 
+    });
+
+    if (adminExists) {
+        if (adminExists.email === email) {
+            return res.status(400).json({ message: "Email already exists" });
+        }
+        if (adminExists.phone === phone) {
+            return res.status(400).json({ message: "Phone number already exists" });
+        }
+    }
+
+    // Store the plain password for email (before hashing)
+    const plainPassword = password;
+
+    const admin = await AdminsModel.create({
+        name,
+        email,
+        password,
+        role,
+        phone,
+        designation,
+        companyname,
+        image,
+        address,
+    });
+
+    if (admin) {
+        // Send welcome email if the role is vendor
+        if (role === 'vendor') {
+            const emailResult = await sendVendorWelcomeEmail(
+                email, 
+                name, 
+                plainPassword, 
+                companyname || 'Our Platform'
+            );
+            
+            if (emailResult.success) {
+                return res.status(201).json({ 
+                    message: "Vendor created successfully and welcome email sent",
+                    emailSent: true 
+                });
+            } else {
+                return res.status(201).json({ 
+                    message: "Vendor created successfully but failed to send welcome email",
+                    emailSent: false,
+                    emailError: emailResult.message
+                });
+            }
+        } else {
+            return res.status(201).json({ message: "Admin created successfully" });
+        }
+    } else {
+        return res.status(400).json({ message: "Admin not created" });
+    }
+});
 // Generate OTP and send it to the user's email
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -75,48 +321,7 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
-//create admin
-exports.create = asyncHandler(async (req, res) => {
-  const { name, email, password, role, phone, designation, address,companyname } = req.body;
-  const image = req.file ? req.file.filename : null;
-    if (!name || !email || !password || !role || !phone) {
-      return res.status(400).json({ message: "Please add all fields" });
-    }
-  
-// Check  email or phone already exists
-    const adminExists = await AdminsModel.findOne({ 
-      $or: [{ email: email }, { phone: phone }] 
-    });
-  
-    if (adminExists) {
-      if (adminExists.email === email) {
-        return res.status(400).json({ message: "Email already exists" });
-      }
-      if (adminExists.phone === phone) {
-        return res.status(400).json({ message: "Phone number already exists" });
-      }
-    }
 
-
-const admin = await AdminsModel.create({
-  name,
-  email,
-  password,
-  role,
-  phone,
-  designation,
-  companyname,
-  image,
-  address,
-});
-
-  
-    if (admin) {
-      return res.status(201).json({ message: "Admin created" });
-    } else {
-      return res.status(400).json({ message: "Admin not created" });
-    }
-  });
   
 //get all admins
 exports.getAll = asyncHandler(async (req, res) => {
