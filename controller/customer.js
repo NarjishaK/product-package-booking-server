@@ -203,16 +203,6 @@ exports.resendVerification = asyncHandler(async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
 //create customer
 // exports.create = asyncHandler(async (req, res) => {
 //     const { name, email, phone, password } = req.body;
@@ -382,8 +372,6 @@ exports.sendOTP = async (req, res) => {
     res.status(500).json({ message: 'Error sending OTP', error });
   }
 };
-
-
 
 // Verify OTP
 exports.verifyOTP = async (req, res) => {
