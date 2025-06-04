@@ -48,16 +48,8 @@ const customerorderSchema = new Schema({
         enum: ["Unpaid", "Paid", "Refund", "Partially Paid"],
         default: "Unpaid",
       },
-      deliveryStatus: {
-        type: String,
-        enum: ["Out for delivery", "Delivered", "Cancelled", "On transist", "Pending","Returned"],
-        default: "Pending",
-      },
       orderDate: {
         type: Date,
-      },
-      deliveryDate: {
-        type: String,
       },
       note: {
         type: String,
@@ -70,6 +62,14 @@ const customerorderSchema = new Schema({
           image: String,
           packagename: String,
           quantity: Number,
+           deliveryStatus: {
+        type: String,
+        enum: ["Out for delivery", "Claim", "Cancelled", "On transist", "Pending","Returned"],
+        default: "Pending",
+      },
+      deliveryDate: {
+        type: String,
+      },
         }
       }],
       packageId:[{
