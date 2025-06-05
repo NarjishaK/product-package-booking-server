@@ -283,14 +283,24 @@ exports.createOrder = async (req, res) => {
   }
 };
   //get all customer order
-  exports.getAll = async (req, res) => {
-    try {
-      const orders = await CustomerOrder.find();
-      res.status(200).json({ orders });
-    } catch (error) {
-      res.status(500).json({ message: "Server error", error });
-    }
-  };
+ exports.getAll = async (req, res) => {
+  try {
+    const orders = await CustomerOrder.find()
+      .populate({
+        path: 'packageId',
+        select: 'packagename price image category',
+        populate: {
+          path: 'category',
+          select: 'name vendor'
+        }
+      });
+
+    res.status(200).json({ orders });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
 
   //get customerorder by id
   exports.get = async (req, res) => {
