@@ -62,6 +62,8 @@ const customerorderSchema = new Schema({
           image: String,
           packagename: String,
           quantity: Number,
+          toDate: Date,
+          fromDate: Date,
            deliveryStatus: {
         type: String,
         enum: ["Out for delivery", "Claim", "Cancelled", "On transist", "Pending","Returned"],

@@ -133,7 +133,9 @@ exports.createOrder = async (req, res) => {
               price: packageInfo.price,
               image: packageInfo.image,
               packagename: packageInfo.packagename,
-              quantity: item.quantity
+              quantity: item.quantity,
+              toDate: packageInfo.toDate,
+              fromDate: packageInfo.fromDate
             }
           });
           packageIds.push(packageInfo._id);
