@@ -52,8 +52,32 @@ exports.getMessage2 = async (req, res) => {
 };
 
 
+//delete by id notifications
+
+exports.delete = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Notification.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Notification deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting notification' });
+    }
+  };
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+  //------------------------------------------------------------//
 
 
 
@@ -105,17 +129,6 @@ exports.getAll = async (req, res) => {
         res.status(500).json({ message: 'Error fetching notifications' });
     }
 };
-//delete by id notifications
-
-exports.delete = async (req, res) => {
-    try {
-        const { id } = req.params;
-        await Notification.findByIdAndDelete(id);
-        res.status(200).json({ message: 'Notification deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting notification' });
-    }
-  };
 
 
 
