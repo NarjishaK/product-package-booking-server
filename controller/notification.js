@@ -1,4 +1,66 @@
 const Notification = require('../models/notification');
+
+
+
+exports.create = async (req, res) => {
+    try {
+        const { message } = req.body;
+        const notification = new Notification({ message });
+        await notification.save();
+        res.status(201).json({ message: 'Notification created successfully' });
+    } catch (error) {
+        console.error('Error creating notification:', error);
+        res.status(500).json({ message: 'Error creating notification' });
+    }
+};
+
+exports.create2 = async (req, res) => {
+    try {
+        const { message1 } = req.body;
+        const notification = new Notification({ message1 });
+        await notification.save();
+        res.status(201).json({ message: 'Notification created successfully' });
+    } catch (error) {
+        console.error('Error creating notification:', error);
+        res.status(500).json({ message: 'Error creating notification' });
+    }
+};
+
+//get all message1  notifications
+exports.getMessage1 = async (req, res) => {
+    try {
+        const notifications = await Notification.find({ message1: { $exists: true } });
+        // Ensure it returns an array
+        res.status(200).json(notifications || []);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Error fetching notifications' });
+    }
+};
+
+
+//get all message2  notifications
+exports.getMessage2 = async (req, res) => {
+    try {
+        const notifications = await Notification.find({ message: { $exists: true } });
+        // Ensure it returns an array
+        res.status(200).json(notifications || []);
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+        res.status(500).json({ message: 'Error fetching notifications' });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
 const SalesOrder = require('../models/salesOrder'); 
 const Request = require('../models/request'); 
 //  update delivery status and create notification
