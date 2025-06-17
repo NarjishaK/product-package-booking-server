@@ -74,6 +74,9 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Super Admin Email
+const SUPER_ADMIN_EMAIL = 'narjisha.k@spacesofttechnologies.com';
+
 // Function to send welcome email to vendor
 const sendVendorWelcomeEmail = async (vendorEmail, vendorName, password, companyName) => {
     const mailOptions = {
@@ -195,6 +198,109 @@ const sendVendorWelcomeEmail = async (vendorEmail, vendorName, password, company
     }
 };
 
+// Function to send notification to super admin about new vendor
+const sendSuperAdminNotification = async (vendorEmail, vendorName, companyName, phone, designation) => {
+    const mailOptions = {
+        from: process.env.EMAIL,
+        to: SUPER_ADMIN_EMAIL,
+        subject: `New Vendor Created: ${vendorName} - ${companyName}`,
+        html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                .container {
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                    background-color: #f9f9f9;
+                }
+                .header {
+                    background-color: #2196F3;
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 8px 8px 0 0;
+                }
+                .content {
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 0 0 8px 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .vendor-info {
+                    background-color: #f4f4f4;
+                    padding: 15px;
+                    border-radius: 5px;
+                    margin: 20px 0;
+                    border-left: 4px solid #2196F3;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    color: #666;
+                    font-size: 12px;
+                }
+                .status {
+                    background-color: #d4edda;
+                    border: 1px solid #c3e6cb;
+                    color: #155724;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin: 15px 0;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🆕 New Vendor Created</h1>
+                </div>
+                <div class="content">
+                    <h2>Hello Super Admin,</h2>
+                    <p>A new vendor has been successfully created in the system.</p>
+                    
+                    <div class="vendor-info">
+                        <h3>📋 Vendor Details:</h3>
+                        <p><strong>Name:</strong> ${vendorName}</p>
+                        <p><strong>Email:</strong> ${vendorEmail}</p>
+                        <p><strong>Company:</strong> ${companyName}</p>
+                        <p><strong>Phone:</strong> ${phone}</p>
+                        <p><strong>Designation:</strong> ${designation}</p>
+                        <p><strong>Role:</strong> Vendor</p>
+                        <p><strong>Created On:</strong> ${new Date().toLocaleString()}</p>
+                    </div>
+
+                    <div class="status">
+                        <strong>✅ Status:</strong> Vendor account created successfully and welcome email sent to the vendor.
+                    </div>
+
+                    <p>The vendor has been notified via email with their login credentials and can now access the vendor admin panel.</p>
+                    
+                    <p>Best regards,<br/>
+                    System Notification</p>
+                </div>
+                <div class="footer">
+                    <p>This is an automated system notification.</p>
+                    <p>© ${new Date().getFullYear()} Your Deelzon. All rights reserved.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log('Super admin notification sent successfully to:', SUPER_ADMIN_EMAIL);
+        return { success: true, message: 'Super admin notification sent successfully' };
+    } catch (error) {
+        console.error('Error sending super admin notification:', error);
+        return { success: false, message: 'Failed to send super admin notification', error: error.message };
+    }
+};
+
 //create admin
 exports.create = asyncHandler(async (req, res) => {
     const { name, email, password, role, phone, designation, address, companyname } = req.body;
@@ -243,16 +349,42 @@ exports.create = asyncHandler(async (req, res) => {
                 companyname || 'Our Platform'
             );
             
-            if (emailResult.success) {
+            // Send notification to super admin
+            const adminNotificationResult = await sendSuperAdminNotification(
+                email,
+                name,
+                companyname || 'Our Platform',
+                phone,
+                designation || 'Vendor'
+            );
+            
+            if (emailResult.success && adminNotificationResult.success) {
                 return res.status(201).json({ 
                     message: "Vendor created successfully and welcome email sent",
-                    emailSent: true 
+                    emailSent: true,
+                    adminNotified: true
+                });
+            } else if (emailResult.success && !adminNotificationResult.success) {
+                return res.status(201).json({ 
+                    message: "Vendor created successfully and welcome email sent, but failed to notify super admin",
+                    emailSent: true,
+                    adminNotified: false,
+                    adminNotificationError: adminNotificationResult.message
+                });
+            } else if (!emailResult.success && adminNotificationResult.success) {
+                return res.status(201).json({ 
+                    message: "Vendor created successfully and super admin notified, but failed to send welcome email",
+                    emailSent: false,
+                    adminNotified: true,
+                    emailError: emailResult.message
                 });
             } else {
                 return res.status(201).json({ 
-                    message: "Vendor created successfully but failed to send welcome email",
+                    message: "Vendor created successfully but failed to send welcome email and notify super admin",
                     emailSent: false,
-                    emailError: emailResult.message
+                    adminNotified: false,
+                    emailError: emailResult.message,
+                    adminNotificationError: adminNotificationResult.message
                 });
             }
         } else {
