@@ -14,7 +14,11 @@ exports.update = asyncHandler(async (req, res) => {
 
   // If there's a new image uploaded
   if (req.file) {
-    const imagePath = path.join(__dirname, "../public/images", req.file.filename);
+    const imagePath = path.join(
+      __dirname,
+      "../public/images",
+      req.file.filename
+    );
 
     try {
       const metadata = await sharp(imagePath).metadata();
@@ -29,9 +33,10 @@ exports.update = asyncHandler(async (req, res) => {
       }
 
       updatedData.image = req.file.filename;
-
     } catch (err) {
-      return res.status(500).json({ message: "Error processing image", error: err });
+      return res
+        .status(500)
+        .json({ message: "Error processing image", error: err });
     }
   }
 
@@ -47,7 +52,6 @@ exports.update = asyncHandler(async (req, res) => {
   res.status(200).json(banner);
 });
 //create banner
-
 exports.create = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
 
@@ -69,7 +73,9 @@ exports.create = asyncHandler(async (req, res) => {
       });
     }
   } catch (err) {
-    return res.status(500).json({ message: "Error processing image", error: err });
+    return res
+      .status(500)
+      .json({ message: "Error processing image", error: err });
   }
 
   // Save banner if image is valid
@@ -81,7 +87,6 @@ exports.create = asyncHandler(async (req, res) => {
 
   res.status(200).json(banner);
 });
-
 
 //get all banners
 exports.getAll = asyncHandler(async (req, res) => {
