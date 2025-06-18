@@ -8,6 +8,12 @@ const maincategorySchema = new mongoose.Schema({
     vendor: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Admin'
+    },
+    updateperson:{
+        type:String
+    },
+    role:{
+        type:String
     }
 });
 
