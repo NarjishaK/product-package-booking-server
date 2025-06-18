@@ -48,7 +48,7 @@ exports.getPackageWithAllProducts = async (req, res) => {
 
 //create subcategory
 exports.create = asyncHandler(async (req, res) => {
-  const { packagename, category, price, fromDate, toDate } = req.body;
+  const { packagename, category, price, fromDate, toDate,updatepersone,role } = req.body;
   const image = req.file ? req.file.filename : "";
 
   const newPackage = await SubCategory.create({
@@ -58,6 +58,8 @@ exports.create = asyncHandler(async (req, res) => {
     fromDate,
     toDate,
     image,
+    updatepersone,
+    role
   });
 
   res.status(201).json(newPackage);
@@ -88,6 +90,8 @@ exports.update = asyncHandler(async (req, res) => {
   if (req.body.category) updateFields.category = req.body.category;
   if (req.body.fromDate) updateFields.fromDate = req.body.fromDate;
   if (req.body.toDate) updateFields.toDate = req.body.toDate;
+  if (req.body.updatepersone) updateFields.updatepersone = req.body.updatepersone;
+  if (req.body.role) updateFields.role = req.body.role;
   
   // Handle image if provided
   if (req.file) {

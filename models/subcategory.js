@@ -25,6 +25,12 @@ const packageSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: false
+    },
+    updatepersone: {
+        type: String,
+    },
+    role: {
+        type: String,
     }
 });
 
