@@ -39,7 +39,7 @@ app.use(
       "http://localhost:3002",
       "http://localhost:3001",
       "http://localhost:3000",
-      "https://dz.sstappstore.in",
+      "https://admin.deelzon.com",
       "https://deelzon.com",
       "https://api.sstappstore.in"
     ],
